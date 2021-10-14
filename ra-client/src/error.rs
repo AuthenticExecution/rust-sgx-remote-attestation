@@ -4,6 +4,7 @@ pub enum ClientRaError {
     Aesm(aesm_client::Error),
     EnclaveNotTrusted,
     PseNotTrusted,
+    GenericError(String)
 }
 
 #[derive(Debug)]
@@ -29,3 +30,12 @@ impl std::convert::From<std::io::Error> for ClientRaError {
         Self::IO(IOError::StdIo(e))
     }
 }
+
+impl std::fmt::Display for ClientRaError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>)
+        -> Result<(), std::fmt::Error> {
+            write!(f, "{:?}", self)
+        }
+}
+
+impl std::error::Error for ClientRaError {}

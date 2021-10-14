@@ -5,6 +5,7 @@ pub enum CryptoError {
     MbedTls(mbedtls::Error),
     Io(io::Error),
     CmacVerificationError,
+    GenericError(String)
 }
 
 impl std::convert::From<mbedtls::Error> for CryptoError {
@@ -18,3 +19,11 @@ impl std::convert::From<io::Error> for CryptoError {
         Self::Io(e)
     }
 }
+
+impl std::fmt::Display for CryptoError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl std::error::Error for CryptoError {}

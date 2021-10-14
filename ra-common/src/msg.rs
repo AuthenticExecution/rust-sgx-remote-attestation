@@ -2,11 +2,12 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use serde::{Deserialize, Serialize};
 use serde_big_array::big_array;
 use sgx_crypto::cmac::{Cmac, MacTag};
-use sgx_crypto::error::CryptoError;
 use sgx_crypto::key_exchange::DHKEPublicKey;
 use sgx_crypto::signature::Signature;
 use std::io::Write;
 use std::mem::size_of;
+
+use anyhow::Result;
 
 pub type Gid = [u8; 4];
 pub type Spid = [u8; 16];
@@ -47,7 +48,7 @@ impl RaMsg2 {
         quote_type: u16,
         sign_gb_ga: Signature,
         sig_rl: Option<Vec<u8>>,
-    ) -> Result<Self, CryptoError> {
+    ) -> Result<Self> {
         let mut msg2 = Self {
             g_b,
             spid,
@@ -56,23 +57,24 @@ impl RaMsg2 {
             mac: [0u8; size_of::<MacTag>()],
             sig_rl,
         };
-        let a = msg2.get_a();
+        let a = msg2.get_a()?;
         msg2.mac = smk.sign(&a[..])?;
         Ok(msg2)
     }
 
-    pub fn verify_mac(&self, smk: &mut Cmac) -> Result<(), CryptoError> {
-        let a = self.get_a();
-        smk.verify(&a[..], &self.mac)
+    pub fn verify_mac(&self, smk: &mut Cmac) -> Result<()> {
+        let a = self.get_a()?;
+        smk.verify(&a[..], &self.mac)?;
+        Ok(())
     }
 
-    fn get_a(&self) -> Vec<u8> {
+    fn get_a(&self) -> Result<Vec<u8>> {
         let mut a = Vec::new();
-        a.write_all(&self.g_b[..]).unwrap();
-        a.write_all(&self.spid[..]).unwrap();
-        a.write_u16::<LittleEndian>(self.quote_type).unwrap();
-        a.write_all(&self.sign_gb_ga[..]).unwrap();
-        a
+        a.write_all(&self.g_b[..])?;
+        a.write_all(&self.spid[..])?;
+        a.write_u16::<LittleEndian>(self.quote_type)?;
+        a.write_all(&self.sign_gb_ga[..])?;
+        Ok(a)
     }
 }
 
@@ -97,7 +99,7 @@ impl RaMsg3 {
         g_a: DHKEPublicKey,
         ps_sec_prop: Option<PsSecPropDesc>,
         quote: Quote,
-    ) -> Result<Self, CryptoError> {
+    ) -> Result<Self> {
         let ps_sec_prop = ps_sec_prop.map(|v| PsSecPropDescInternal { inner: v });
         let mut msg3 = Self {
             mac: [0u8; size_of::<MacTag>()],
@@ -105,25 +107,25 @@ impl RaMsg3 {
             ps_sec_prop,
             quote,
         };
-        let m = msg3.get_m();
+        let m = msg3.get_m()?;
         msg3.mac = smk.sign(&m[..])?;
         Ok(msg3)
     }
 
-    pub fn verify_mac(&self, smk: &mut Cmac) -> Result<(), CryptoError> {
-        let m = self.get_m();
-        smk.verify(&m[..], &self.mac)
+    pub fn verify_mac(&self, smk: &mut Cmac) -> Result<()> {
+        let m = self.get_m()?;
+        smk.verify(&m[..], &self.mac)?;
+        Ok(())
     }
 
-    fn get_m(&self) -> Vec<u8> {
+    fn get_m(&self) -> Result<Vec<u8>> {
         let mut m = Vec::new();
-        m.write_all(&self.g_a[..]).unwrap();
+        m.write_all(&self.g_a[..])?;
         if self.ps_sec_prop.is_some() {
-            m.write_all(&self.ps_sec_prop.as_ref().unwrap().inner[..])
-                .unwrap();
+            m.write_all(&self.ps_sec_prop.as_ref().unwrap().inner[..])?; // safe unwrap
         }
-        m.write_all(&self.quote[..]).unwrap();
-        m
+        m.write_all(&self.quote[..])?;
+        Ok(m)
     }
 }
 

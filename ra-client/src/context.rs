@@ -42,7 +42,7 @@ impl ClientRaContext {
             eprintln!("MSG0 sent");
         }
 
-        let msg1 = self.get_msg_1(enclave_stream);
+        let msg1 = self.get_msg_1(enclave_stream)?;
         if cfg!(feature = "verbose") {
             eprintln!("MSG1 generated");
         }
@@ -74,7 +74,7 @@ impl ClientRaContext {
             eprintln!("MSG4 received");
         }
 
-        bincode::serialize_into(&mut enclave_stream, &msg4).unwrap();
+        bincode::serialize_into(&mut enclave_stream, &msg4)?;
         sp_stream.flush()?;
 
         if !msg4.is_enclave_trusted {
@@ -97,11 +97,14 @@ impl ClientRaContext {
         RaMsg0 { exgid: 0 }
     }
 
-    pub fn get_msg_1(&mut self, enclave_stream: &mut (impl Read + Write)) -> RaMsg1 {
-        let g_a: DHKEPublicKey = bincode::deserialize_from(enclave_stream).unwrap();
-        let gid: Gid = self.quote_info.gid().try_into().unwrap();
+    pub fn get_msg_1(&mut self, enclave_stream: &mut (impl Read + Write)) -> ClientRaResult<RaMsg1> {
+        let g_a: DHKEPublicKey = bincode::deserialize_from(enclave_stream)?;
+        let gid: Gid = match self.quote_info.gid().try_into() {
+            Ok(g)   => g,
+            Err(_)  => return Err(ClientRaError::GenericError(String::from("gid conversion failed")))
+        };
         self.g_a = Some(g_a.clone());
-        RaMsg1 { gid, g_a }
+        Ok(RaMsg1 { gid, g_a })
     }
 
     pub fn process_msg_2(
@@ -126,7 +129,7 @@ impl ClientRaContext {
         enclave_stream.read_exact(&mut mac)?;
 
         Ok(RaMsg3 {
-            g_a: self.g_a.take().unwrap(),
+            g_a: self.g_a.take().unwrap(), // safe unwrap
             mac,
             ps_sec_prop: None,
             quote,
