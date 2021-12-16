@@ -11,5 +11,5 @@ default = []
 regex = "1.3.3"
 base64 = "0.11"
 byteorder = "1.2.1"
-mbedtls = { git = "https://github.com/gianlu33/rust-mbedtls.git", branch="psk", features = ["rdrand"] }
+mbedtls = { git = "https://github.com/AuthenticExecution/rust-mbedtls.git", branch="psk", features = ["rdrand"] }
 anyhow = "1.0.38"
