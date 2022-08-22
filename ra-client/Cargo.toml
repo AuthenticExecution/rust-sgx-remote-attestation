@@ -10,7 +10,7 @@ verbose = []
 [dependencies]
 bincode = "1.2.1"
 aesm-client = "0.5"
-sgx-isa = "0.3"
+sgx-isa = "0.4.0"
 ra-common = { path = "../ra-common" }
 sgx-crypto = { path = "../sgx-crypto" }
 
