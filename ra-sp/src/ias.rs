@@ -61,7 +61,7 @@ jjxDah2nGN59PRbxYvnKkKj9
 
 pub struct IasClient {
     root_ca_cert: X509Cert,
-    ctx: Context
+    ctx: Context<TcpStream>
 }
 
 impl IasClient {

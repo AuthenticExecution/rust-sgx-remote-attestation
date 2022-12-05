@@ -1,13 +1,10 @@
 use mbedtls::ssl::config::{Endpoint, Preset, Transport};
 use mbedtls::ssl::{Config, Context};
-use mbedtls::ssl::context::HandshakeContext;
 use mbedtls::Result;
 use std::sync::Arc;
 use std::net::TcpStream;
 
 use super::Rng;
-
-pub type Callback = Box<dyn FnMut(&mut HandshakeContext, &str) -> Result<()>>;
 
 pub fn new_server_context(
     psk: &[u8; 16],
