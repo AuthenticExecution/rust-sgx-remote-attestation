@@ -42,7 +42,7 @@ impl X509Cert {
         let mut list_2 = List::new();
         list_1.push((&self.inner).clone());
         list_2.push((&trust_ca.inner).clone());
-        Certificate::verify(&mut list_1, &mut list_2, None)?;
+        Certificate::verify(&mut list_1, &mut list_2, None, None)?;
         Ok(())
     }
 

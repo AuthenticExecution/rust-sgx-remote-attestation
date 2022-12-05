@@ -19,8 +19,8 @@ use std::io::Read;
 
 const ADDRESS : & str = "api.trustedservices.intel.com:443";
 const BASE_URI: &str = "https://api.trustedservices.intel.com/sgx/dev";
-const SIG_RL_PATH: &str = "/attestation/v3/sigrl/";
-const REPORT_PATH: &str = "/attestation/v3/report";
+const SIG_RL_PATH: &str = "/attestation/v4/sigrl/";
+const REPORT_PATH: &str = "/attestation/v4/report";
 
 const CERT: &[u8] = b"\
 -----BEGIN CERTIFICATE-----
