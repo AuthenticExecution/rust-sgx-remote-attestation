@@ -11,5 +11,5 @@ default = []
 regex = "1.3.3"
 base64 = "0.11"
 byteorder = "1.2.1"
-mbedtls = { git = "https://github.com/fortanix/rust-mbedtls.git", features = ["rdrand"] }
+mbedtls = { git = "https://github.com/fortanix/rust-mbedtls.git", rev = "a3aee0da72050a0851db3dad794f6a8289986423", features = ["rdrand"] }
 anyhow = "1.0.38"
